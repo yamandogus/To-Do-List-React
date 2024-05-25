@@ -1,189 +1,270 @@
-import React, { useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { useState } from "react";
 import styled from "styled-components";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { nanoid } from "nanoid";
+import { IoMdText } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
+import Alert from '@mui/material/Alert';
 
-interface Item {
-  id: string;
-  content: string;
-}
 
-const getItems = (count: number, offset = 0): Item[] =>
-  Array.from({ length: count }, (_, index) => ({
-    id: `item-${index + offset}-${new Date().getTime()}`,
-    content: `item ${index + offset}`
-  }));
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 50px;
+`;
 
-const reorder = (list: Item[], startIndex: number, endIndex: number): Item[] => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-  return result;
-};
+const InputContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+`;
 
-const move = (
-  source: Item[],
-  destination: Item[],
-  droppableSource: DropResult,
-  droppableDestination: DropResult
-) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
+const InputText = styled.input`
+  padding: 8px;
+  margin-right: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 400px;
+`;
 
-  destClone.splice(droppableDestination.index, 0, removed);
-
-  return {
-    [droppableSource.droppableId]: sourceClone,
-    [droppableDestination.droppableId]: destClone
-  };
-};
-
-const grid = 8;
-
-const ItemContainer = styled.div`
-  user-select: none;
-  padding: ${grid * 2}px;
-  margin-bottom: ${grid}px;
-  background: lightblue; /* Arka plan rengi */
+const ModelNewText = styled.input`
+  padding: 8px;
+  margin-right: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  width: 200px;
 `;
 
 const Button = styled.button`
-  margin-right: 10px;
-  padding: 8px 12px;
-  background-color: #4CAF50;
+  padding: 8px 16px;
+  font-size: 16px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #25ca2d;
+    transition: background-color 500ms;
+  }
+`;
+const ButtonText = styled.button`
+  padding: 8px 16px;
+  font-size: 16px;
+  background-color: #3734db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #454cb3;
+  }
+`;
+const ButtonClear = styled.button`
+  padding: 8px 16px;
+  margin-left: 5px;
+  font-size: 16px;
+  background-color: #cc2626;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+
+  &:hover {
+    background-color: #df5561;
+  }
 `;
 
-const Input = styled.input`
-  margin-right: 10px;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+const List = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 500px;
 `;
 
-const App: React.FC = () => {
-  const [groups, setGroups] = useState<Item[][]>([getItems(10)]);
+const ListBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 8px;
+  background-color: #ffffff;
+  border: 1px solid #0e0d0d;
+  border-radius: 5px;
+`;
 
-  const [newItemContent, setNewItemContent] = useState<string>("");
+const ModalDiv = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
-  const onDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
+const MessageDiv = styled.div`
+  height: 100px;
+`
 
-    if (!destination) {
-      return;
-    }
+const ModalContainer = styled.div`
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+`;
 
-    const sInd = +source.droppableId;
-    const dInd = +destination.droppableId;
+interface TodosProps{
+  id: string;
+  content: string;
+}
 
-    if (sInd === dInd) {
-      const items = reorder(groups[sInd], source.index, destination.index);
-      const newGroups = [...groups];
-      newGroups[sInd] = items;
-      setGroups(newGroups);
-    } else {
-      const result = move(groups[sInd], groups[dInd], source, destination);
-      const newGroups = [...groups];
-      newGroups[sInd] = result[sInd];
-      newGroups[dInd] = result[dInd];
-      setGroups(newGroups.filter(group => group.length));
-    }
+interface ShowProps{
+  show: boolean;
+  type: "success" | "error";
+  message: string;
+}
+
+function App() {
+  const [todos, setTodos] = useState<TodosProps[]>([]);
+  const [newTodo, setNewTodo] = useState<string>("");
+  const [model, setModle] =useState<boolean>(false);
+  const [changeTodo, setChangeTodo] = useState<string>("")
+  const [todoId, setTodoId] = useState<string>("")
+  const [showAlert, setShowAlert] = useState<ShowProps>({ show: false, type: 'success', message: '' });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function onDragEnd(result: any) {
+    if (!result.destination) return;
+    const quotes = [...todos];
+    const [removeTodos] = quotes.splice(result.source.index, 1);
+    quotes.splice(result.destination.index, 0, removeTodos);
+    setTodos(quotes);
+  }
+
+  const closeAlert = ()=> {
+    setTimeout(() => {
+      setShowAlert({...showAlert, show: false})
+    }, 2000);
   };
 
-  const handleNewItemAddition = () => {
-    if (newItemContent.trim() !== "") {
-      const lastGroupIndex = groups.length - 1;
-      const lastGroup = groups[lastGroupIndex];
-      if (lastGroup.length < 10) {
-        const newGroups = [...groups];
-        newGroups[lastGroupIndex] = [...lastGroup, { id: `item-${Date.now()}`, content: newItemContent }];
-        setGroups(newGroups);
-      } else {
-        setGroups([...groups, [{ id: `item-${Date.now()}`, content: newItemContent }]]);
+  const addNewTodo= ()=>{
+    if(newTodo){
+      const todoId = nanoid()
+      const newAddedTodos = {
+        id: todoId,
+        content: newTodo,
       }
-      setNewItemContent("");
+      setTodos([...todos, newAddedTodos]);
+      setNewTodo("")
+      setShowAlert({show: true, type: "success", message: "To-do başarıyla eklendi"});
+      closeAlert();
+    }else{
+      setShowAlert({show: true, type: "error", message: "Lütfen bir değer giriniz" });
+      closeAlert();
     }
-  };
+  }
 
-  const handleNewGroupAddition = () => {
-    setGroups([...groups, []]);
-  };
+  const deleteTodo = (id: string)=>{
+    setTodos((todos)=>{
+      return todos.filter((todo)=> todo.id !== id)
+    })};
+    
+    const modelDiv = (id: string, content: string,) =>{
+        setModle(true);
+        setChangeTodo(content)
+        setTodoId(id)
+    }
 
+    const changeTodosNewName = () =>{
+      const changeTodoName = todos.find((todo)=>todo.id ===todoId)
+      if(changeTodoName){
+        changeTodoName.content = changeTodo
+        setTodos([...todos])
+      }
+      setModle(false)
+    }
+    const closeModel = ()=> setModle(false)
+
+  
   return (
-    <div>
-      <Input
-        type="text"
-        value={newItemContent}
-        onChange={(e) => setNewItemContent(e.target.value)}
-        placeholder="Add new item"
-      />
-      <Button onClick={handleNewItemAddition}>Add</Button>
-      <Button onClick={handleNewGroupAddition}>Add new group</Button>
-      <div style={{ display: "flex" }}>
-        <DragDropContext onDragEnd={onDragEnd}>
-          {groups.map((el, ind) => (
-            <Droppable key={ind} droppableId={`${ind}`}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  style={{
-                    background: snapshot.isDraggingOver ? "lightblue" : "lightgrey", // Liste arka plan rengi
-                    padding: grid,
-                    width: 250
-                  }}
-                  {...provided.droppableProps}
-                >
-                  {el.map((item, index) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <ItemContainer
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
+    <>
+      <Container>
+        <InputContainer>
+          <InputText
+            type="text"
+            value={newTodo}
+            onChange={(e) => {
+              setNewTodo(e.target.value);
+            }}
+            placeholder="yeni to do ekleyiniz..."
+          />
+          <Button onClick={addNewTodo}>Ekle</Button>
+        </InputContainer>
+        <MessageDiv>
+          {showAlert.show && 
+            <Alert variant="filled" severity={showAlert.type} onClose={closeAlert}>
+              {showAlert.message}
+            </Alert>
+          }
+        </MessageDiv>
+        <div>
+          <List>
+            <h2>To-Do List</h2>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="todoList">
+                {provided=>(
+                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                    {todos.map(({id, content}:TodosProps, index)=>(
+                    <Draggable draggableId={id} key={id} index={index}>
+                      {(provided)=>(
+                        <ListBox 
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
                         >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-around"
-                            }}
-                          >
-                            {item.content}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newGroups = [...groups];
-                                newGroups[ind].splice(index, 1);
-                                setGroups(
-                                  newGroups.filter(group => group.length)
-                                );
-                              }}
-                            >
-                              delete
-                            </button>
+                          {content}
+                          <div>
+                          <ButtonText onClick={()=> modelDiv(id, content)}><IoMdText /></ButtonText>
+                          <ButtonClear onClick={()=>deleteTodo(id)}><MdDelete /></ButtonClear>
                           </div>
-                        </ItemContainer>
+                        </ListBox>
                       )}
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          ))}
-        </DragDropContext>
-      </div>
-    </div>
+                  </div>  
+                )}
+              </Droppable>
+            </DragDropContext>
+          </List>
+        </div>
+      </Container>
+      {
+        model && 
+        <ModalDiv onClick={closeModel}>
+          <ModalContainer onClick={(e)=>e.stopPropagation
+            ()
+          }>
+          <ModelNewText type="text"
+          value={changeTodo} 
+          onChange={(e)=>setChangeTodo(e.target.value)}/>
+           <Button onClick={changeTodosNewName}>Değiştir</Button>
+          </ModalContainer>
+        </ModalDiv>
+      }
+    </>
   );
-};
+}
 
 export default App;
+
 
 
 
