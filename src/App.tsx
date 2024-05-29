@@ -14,13 +14,13 @@ const Container = styled.div`
   margin-top: 50px;
 `;
 
-const InputContainer = styled.div`
+const Input = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 `;
 
-const InputText = styled.input`
+const TextCm = styled.input`
   padding: 8px;
   margin-right: 10px;
   font-size: 16px;
@@ -42,7 +42,7 @@ const Button = styled.button`
   background-color: black;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 7px;
   cursor: pointer;
 
   &:hover {
@@ -78,7 +78,7 @@ const ButtonClear = styled.button`
   }
 `;
 
-const List = styled.div`
+const DraggleDiv = styled.div`
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -112,7 +112,7 @@ const MessageDiv = styled.div`
   height: 100px;
 `
 
-const ModalContainer = styled.div`
+const Modal = styled.div`
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -196,8 +196,8 @@ function App() {
   return (
     <>
       <Container>
-        <InputContainer>
-          <InputText
+        <Input>
+          <TextCm
             type="text"
             value={newTodo}
             onChange={(e) => {
@@ -206,7 +206,7 @@ function App() {
             placeholder="yeni to do ekleyiniz..."
           />
           <Button onClick={addNewTodo}>Ekle</Button>
-        </InputContainer>
+        </Input>
         <MessageDiv>
           {showAlert.show && 
             <Alert variant="filled" severity={showAlert.type} onClose={closeAlert}>
@@ -215,7 +215,7 @@ function App() {
           }
         </MessageDiv>
         <div>
-          <List>
+          <DraggleDiv >
             <h2>To-Do List</h2>
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="todoList">
@@ -243,20 +243,20 @@ function App() {
                 )}
               </Droppable>
             </DragDropContext>
-          </List>
+          </DraggleDiv>
         </div>
       </Container>
       {
         model && 
         <ModalDiv onClick={closeModel}>
-          <ModalContainer onClick={(e)=>e.stopPropagation
+          <Modal onClick={(e)=>e.stopPropagation
             ()
           }>
           <ModelNewText type="text"
           value={changeTodo} 
           onChange={(e)=>setChangeTodo(e.target.value)}/>
            <Button onClick={changeTodosNewName}>Değiştir</Button>
-          </ModalContainer>
+          </Modal>
         </ModalDiv>
       }
     </>
