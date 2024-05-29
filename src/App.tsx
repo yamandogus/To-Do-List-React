@@ -6,97 +6,104 @@ import { IoMdText } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import Alert from '@mui/material/Alert';
 
-
-const Container = styled.div`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 50px;
+  padding: 20px;
+  border-radius: 10px;
 `;
 
-const Input = styled.div`
+const InputContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
 `;
 
-const TextCm = styled.input`
-  padding: 8px;
+const TodoInput = styled.input`
+  padding: 10px;
   margin-right: 10px;
   font-size: 16px;
+  border: 2px solid #ced4da;
   border-radius: 5px;
   width: 400px;
 `;
 
-const ModelNewText = styled.input`
-  padding: 8px;
+const EditInput = styled.input`
+  padding: 10px;
   margin-right: 10px;
   font-size: 16px;
+  border: 2px solid #ced4da;
   border-radius: 5px;
   width: 200px;
 `;
 
-const Button = styled.button`
-  padding: 8px 16px;
+const AddButton = styled.button`
+  padding: 10px 20px;
   font-size: 16px;
-  background-color: black;
+  background-color: #28a745;
   color: white;
   border: none;
   border-radius: 7px;
   cursor: pointer;
 
   &:hover {
-    background-color: #25ca2d;
-    transition: background-color 500ms;
+    background-color: #218838;
+    transition: background-color 300ms;
   }
 `;
-const ButtonText = styled.button`
-  padding: 8px 16px;
+
+const EditButton = styled.button`
+  padding: 10px 20px;
   font-size: 16px;
-  background-color: #3734db;
+  background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 7px;
   cursor: pointer;
 
   &:hover {
-    background-color: #454cb3;
+    background-color: #0056b3;
+    transition: background-color 300ms;
   }
 `;
-const ButtonClear = styled.button`
-  padding: 8px 16px;
+
+const DeleteButton = styled.button`
+  padding: 10px 20px;
   margin-left: 5px;
   font-size: 16px;
-  background-color: #cc2626;
+  background-color: #dc3545;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 7px;
   cursor: pointer;
 
   &:hover {
-    background-color: #df5561;
+    background-color: #c82333;
+    transition: background-color 300ms;
   }
 `;
 
-const DraggleDiv = styled.div`
+const TodoListContainer = styled.div`
   display: flex;
   flex-direction: column;
   text-align: center;
   width: 500px;
 `;
 
-const ListBox = styled.div`
+const TodoItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
   margin-bottom: 8px;
   background-color: #ffffff;
-  border: 1px solid #0e0d0d;
-  border-radius: 5px;
+  border: 1px solid #ced4da;
+  border-radius: 10px;
 `;
 
-const ModalDiv = styled.div`
+const Overlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -108,25 +115,25 @@ const ModalDiv = styled.div`
   align-items: center;
 `;
 
-const MessageDiv = styled.div`
-  height: 100px;
-`
-
-const Modal = styled.div`
+const ModalContainer = styled.div`
   background-color: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   gap: 10px;
   align-items: center;
 `;
 
-interface TodosProps{
+const MessageContainer = styled.div`
+  height: 100px;
+`;
+
+interface TodosProps {
   id: string;
   content: string;
 }
 
-interface ShowProps{
+interface ShowProps {
   show: boolean;
   type: "success" | "error";
   message: string;
@@ -135,10 +142,11 @@ interface ShowProps{
 function App() {
   const [todos, setTodos] = useState<TodosProps[]>([]);
   const [newTodo, setNewTodo] = useState<string>("");
-  const [model, setModle] =useState<boolean>(false);
-  const [changeTodo, setChangeTodo] = useState<string>("")
-  const [todoId, setTodoId] = useState<string>("")
+  const [modal, setModal] = useState<boolean>(false);
+  const [changeTodo, setChangeTodo] = useState<string>("");
+  const [todoId, setTodoId] = useState<string>("");
   const [showAlert, setShowAlert] = useState<ShowProps>({ show: false, type: 'success', message: '' });
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onDragEnd(result: any) {
     if (!result.destination) return;
@@ -148,116 +156,115 @@ function App() {
     setTodos(quotes);
   }
 
-  const closeAlert = ()=> {
+  const closeAlert = () => {
     setTimeout(() => {
-      setShowAlert({...showAlert, show: false})
+      setShowAlert({ ...showAlert, show: false });
     }, 2000);
   };
 
-  const addNewTodo= ()=>{
-    if(newTodo){
-      const todoId = nanoid()
-      const newAddedTodos = {
+  const addNewTodo = () => {
+    if (newTodo) {
+      const todoId = nanoid();
+      const newAddedTodo = {
         id: todoId,
         content: newTodo,
-      }
-      setTodos([...todos, newAddedTodos]);
-      setNewTodo("")
-      setShowAlert({show: true, type: "success", message: "To-do başarıyla eklendi"});
+      };
+      setTodos([...todos, newAddedTodo]);
+      setNewTodo("");
+      setShowAlert({ show: true, type: "success", message: "To-do başarıyla eklendi" });
       closeAlert();
-    }else{
-      setShowAlert({show: true, type: "error", message: "Lütfen bir değer giriniz" });
+    } else {
+      setShowAlert({ show: true, type: "error", message: "Lütfen bir değer giriniz" });
       closeAlert();
     }
-  }
+  };
 
-  const deleteTodo = (id: string)=>{
-    setTodos((todos)=>{
-      return todos.filter((todo)=> todo.id !== id)
-    })};
-    
-    const modelDiv = (id: string, content: string,) =>{
-        setModle(true);
-        setChangeTodo(content)
-        setTodoId(id)
+  const deleteTodo = (id: string) => {
+    setTodos((todos) => {
+      return todos.filter((todo) => todo.id !== id);
+    });
+  };
+
+  const openModal = (id: string, content: string) => {
+    setModal(true);
+    setChangeTodo(content);
+    setTodoId(id);
+  };
+
+  const changeTodoName = () => {
+    const updatedTodo = todos.find((todo) => todo.id === todoId);
+    if (updatedTodo) {
+      updatedTodo.content = changeTodo;
+      setTodos([...todos]);
     }
+    setModal(false);
+  };
 
-    const changeTodosNewName = () =>{
-      const changeTodoName = todos.find((todo)=>todo.id ===todoId)
-      if(changeTodoName){
-        changeTodoName.content = changeTodo
-        setTodos([...todos])
-      }
-      setModle(false)
-    }
-    const closeModel = ()=> setModle(false)
+  const closeModal = () => setModal(false);
 
-  
   return (
     <>
-      <Container>
-        <Input>
-          <TextCm
+      <Wrapper>
+        <InputContainer>
+          <TodoInput
             type="text"
             value={newTodo}
-            onChange={(e) => {
-              setNewTodo(e.target.value);
-            }}
-            placeholder="yeni to do ekleyiniz..."
+            onChange={(e) => setNewTodo(e.target.value)}
+            placeholder="Yeni to-do ekleyiniz..."
           />
-          <Button onClick={addNewTodo}>Ekle</Button>
-        </Input>
-        <MessageDiv>
-          {showAlert.show && 
+          <AddButton onClick={addNewTodo}>Ekle</AddButton>
+        </InputContainer>
+        <MessageContainer>
+          {showAlert.show &&
             <Alert variant="filled" severity={showAlert.type} onClose={closeAlert}>
               {showAlert.message}
             </Alert>
           }
-        </MessageDiv>
+        </MessageContainer>
         <div>
-          <DraggleDiv >
-            <h2>To-Do List</h2>
+          <TodoListContainer>
+            <h2>To-Do Listesi</h2>
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="todoList">
-                {provided=>(
+                {provided => (
                   <div ref={provided.innerRef} {...provided.droppableProps}>
-                    {todos.map(({id, content}:TodosProps, index)=>(
-                    <Draggable draggableId={id} key={id} index={index}>
-                      {(provided)=>(
-                        <ListBox 
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        >
-                          {content}
-                          <div>
-                          <ButtonText onClick={()=> modelDiv(id, content)}><IoMdText /></ButtonText>
-                          <ButtonClear onClick={()=>deleteTodo(id)}><MdDelete /></ButtonClear>
-                          </div>
-                        </ListBox>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                  </div>  
+                    {todos.map(({ id, content }: TodosProps, index) => (
+                      <Draggable draggableId={id} key={id} index={index}>
+                        {provided => (
+                          <TodoItem
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            {content}
+                            <div>
+                              <EditButton onClick={() => openModal(id, content)}><IoMdText /></EditButton>
+                              <DeleteButton onClick={() => deleteTodo(id)}><MdDelete /></DeleteButton>
+                            </div>
+                          </TodoItem>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
                 )}
               </Droppable>
             </DragDropContext>
-          </DraggleDiv>
+          </TodoListContainer>
         </div>
-      </Container>
+      </Wrapper>
       {
-        model && 
-        <ModalDiv onClick={closeModel}>
-          <Modal onClick={(e)=>e.stopPropagation
-            ()
-          }>
-          <ModelNewText type="text"
-          value={changeTodo} 
-          onChange={(e)=>setChangeTodo(e.target.value)}/>
-           <Button onClick={changeTodosNewName}>Değiştir</Button>
-          </Modal>
-        </ModalDiv>
+        modal &&
+        <Overlay onClick={closeModal}>
+          <ModalContainer onClick={(e) => e.stopPropagation()}>
+            <EditInput
+              type="text"
+              value={changeTodo}
+              onChange={(e) => setChangeTodo(e.target.value)}
+            />
+            <EditButton onClick={changeTodoName}>Değiştir</EditButton>
+          </ModalContainer>
+        </Overlay>
       }
     </>
   );
