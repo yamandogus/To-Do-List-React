@@ -19,6 +19,10 @@ const InputContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const TodoInput = styled.input`
@@ -28,6 +32,10 @@ const TodoInput = styled.input`
   border: 2px solid #ced4da;
   border-radius: 5px;
   width: 400px;
+  @media (max-width: 600px) {
+    width: 150%;
+  }
+
 `;
 
 const EditInput = styled.input`
@@ -47,6 +55,9 @@ const AddButton = styled.button`
   border: none;
   border-radius: 7px;
   cursor: pointer;
+  @media (max-width: 600px) {
+    margin-top: 15px;
+  }
 
   &:hover {
     background-color: #218838;
@@ -90,6 +101,9 @@ const TodoListContainer = styled.div`
   flex-direction: column;
   text-align: center;
   width: 500px;
+  @media (max-width: 600px) {
+    width: 400px;
+  }
 `;
 
 const TodoItem = styled.div`
@@ -113,6 +127,7 @@ const Overlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
 `;
 
 const ModalContainer = styled.div`
